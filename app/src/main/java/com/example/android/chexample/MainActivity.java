@@ -3,6 +3,7 @@ package com.example.android.chexample;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,7 +11,6 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -38,11 +38,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private GoogleApiClient mGoogleApiClient;
     public static final String TAG = "Volley";
-    LatLng point;
+    LatLng point = new LatLng(0,0);
     RequestQueue queue;
     int cityOption = 0, stateOption = 0, countryOption = 0;
     Button submit;
-    Intent i;
+    Intent i, i2;
     EditText roomNo, locality, zipCode;
     Spinner citySpinner, stateSpinner, countrySpinner;
 
@@ -50,12 +50,26 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            Toast.makeText(this, "Turn GPS on and try again to get coordinates", Toast.LENGTH_SHORT).show();
+        }
         i = new Intent(MainActivity.this, ResultActivity.class);
 
         submit = (Button) findViewById(R.id.button);
         roomNo = (TextInputEditText) findViewById(R.id.room_no);
         locality = (TextInputEditText) findViewById(R.id.locality);
         zipCode = (TextInputEditText) findViewById(R.id.zip_code);
+
+        i2 = getIntent();
+            Address a = i2.getParcelableExtra("fieldValues");
+            if(a != null) {
+                roomNo.setText(a.room);
+                locality.setText(a.locality);
+                zipCode.setText(a.zipCode);
+            }
+
 
         queue = Volley.newRequestQueue(this);
 
@@ -84,8 +98,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         Double.toString(point.longitude), Double.toString(point.latitude));
 
                 updateAddress(address);
-                i.putExtra("coordis", point);
-                startActivity(i);
+
             }
         });
 
@@ -194,8 +207,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                 } else {
                     Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+
                 }
             }
         }
@@ -218,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
-    public void updateAddress(Address address){
+    public void updateAddress(final Address address){
         String url = "http://ec2-35-154-15-217.ap-south-1.compute.amazonaws.com:8080" +
                 "/campushaatTestAPI/webapi/users/createAddress";
 
@@ -226,7 +238,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, json, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.v("aa gaya", response.toString());
+                i.putExtra("address", address);
+                startActivity(i);
+                finish();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -238,6 +252,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         queue.add(request);
         request.setTag(TAG);
     }
+
 
 
     @Override

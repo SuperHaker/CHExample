@@ -1,18 +1,39 @@
 package com.example.android.chexample;
 
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Address {
-    private String room;
-    private String locality;
-    private String zipCode;
-    private String city;
-    private String state;
-    private String country;
-    private String longitude;
-    private String latitude;
+public class Address implements Parcelable {
+     String room;
+     String locality;
+     String zipCode;
+     String city;
+     String state;
+     String country;
+     String longitude;
+     String latitude;
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(room);
+        parcel.writeString(locality);
+        parcel.writeString(zipCode);
+        parcel.writeString(city);
+        parcel.writeString(state);
+        parcel.writeString(longitude);
+        parcel.writeString(latitude);
+        parcel.writeString(country);
+
+    }
 
     public Address(){}
 
@@ -45,6 +66,28 @@ public class Address {
             e.printStackTrace();
         }
         return jo;
+    }
+
+    public static final Parcelable.Creator<Address> CREATOR = new Parcelable.Creator<Address>() {
+        public Address createFromParcel(Parcel in) {
+            return new Address(in);
+        }
+
+        public Address[] newArray(int size) {
+            return new Address[size];
+        }
+    };
+
+    private Address(Parcel in) {
+        room = in.readString();
+        locality = in.readString();
+        zipCode = in.readString();
+        city = in.readString();
+        state = in.readString();
+        longitude = in.readString();
+        latitude = in.readString();
+        country = in.readString();
+
     }
 
 }
