@@ -18,7 +18,7 @@ import static com.example.android.chexample.R.id.map;
 
 public class ResultActivity extends AppCompatActivity implements OnMapReadyCallback {
     Address address;
-    TextView addressView;
+    TextView addressView, gpsOn;
     String cityName, stateName, countryName;
 
 
@@ -27,6 +27,7 @@ public class ResultActivity extends AppCompatActivity implements OnMapReadyCallb
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
         addressView = (TextView) findViewById(R.id.address_view);
+        gpsOn = (TextView) findViewById(R.id.gps_on);
         address =  getIntent().getParcelableExtra("address");
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(map);
@@ -55,6 +56,10 @@ public class ResultActivity extends AppCompatActivity implements OnMapReadyCallb
         GoogleMap mMap;
         mMap = googleMap;
         LatLng point = new LatLng(Double.parseDouble(address.latitude), Double.parseDouble(address.longitude));
+        if (point == new LatLng(0,0)){
+            gpsOn.setVisibility(View.VISIBLE);
+        }
+
         mMap.addMarker(new MarkerOptions().position(point)).setTitle("Your Location");
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point,15));
         // Zoom in, animating the camera.

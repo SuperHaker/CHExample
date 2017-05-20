@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     Button submit;
     Intent i, i2;
     EditText roomNo, locality, zipCode;
+    TextView coordinates;
     Spinner citySpinner, stateSpinner, countrySpinner;
 
     @Override
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-            Toast.makeText(this, "Turn GPS on and try again to get coordinates", Toast.LENGTH_SHORT).show();
+            coordinates.setText("Turn GPS on to get location coordinates");
         }
         i = new Intent(MainActivity.this, ResultActivity.class);
 
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         roomNo = (TextInputEditText) findViewById(R.id.room_no);
         locality = (TextInputEditText) findViewById(R.id.locality);
         zipCode = (TextInputEditText) findViewById(R.id.zip_code);
+        coordinates = (TextView) findViewById(R.id.coordinates);
 
         i2 = getIntent();
             Address a = i2.getParcelableExtra("fieldValues");
@@ -221,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             if (mLastLocation != null) {
                 Double lat = mLastLocation.getLatitude();
                 Double lon = mLastLocation.getLongitude();
-                Toast.makeText(this, Double.toString(lat) + ", " + Double.toString(lon), Toast.LENGTH_SHORT).show();
+                coordinates.setText("Your current coordinates are: " + Double.toString(lat) + ", " + Double.toString(lon));
                 point = new LatLng(lat,lon);
 
             }
@@ -238,6 +241,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, json, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Toast.makeText(MainActivity.this, response.toString(), Toast.LENGTH_SHORT).show();
                 i.putExtra("address", address);
                 startActivity(i);
                 finish();
