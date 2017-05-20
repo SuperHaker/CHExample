@@ -6,19 +6,30 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -27,18 +38,32 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     LatLng point;
+    RequestQueue queue;
+
     Button submit;
     Intent i;
+    EditText roomNo, locality, zipCode;
+    Spinner citySpinner, stateSpinner, countrySpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         i = new Intent(MainActivity.this, ResultActivity.class);
+
         submit = (Button) findViewById(R.id.button);
+        roomNo = (TextInputEditText) findViewById(R.id.room_no);
+        locality = (TextInputEditText) findViewById(R.id.locality);
+        zipCode = (TextInputEditText) findViewById(R.id.zip_code);
+
+        queue = Volley.newRequestQueue(this);
+
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Address address = new Address(roomNo.getText().toString(), locality.getText().toString(), zipCode.getText().toString(),
+                        "1","1","1",Double.toString(point.longitude), Double.toString(point.latitude));
+                updateAddress(address);
                 i.putExtra("coordis", point);
                 startActivity(i);
             }
@@ -52,23 +77,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     .addApi(LocationServices.API)
                     .build();
         }
-        Spinner spinner = (Spinner) findViewById(R.id.city_spinner);
+        citySpinner = (Spinner) findViewById(R.id.city_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.city_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+        citySpinner.setAdapter(adapter);
 
-        Spinner spinner2 = (Spinner) findViewById(R.id.state_spinner);
+        stateSpinner = (Spinner) findViewById(R.id.state_spinner);
         ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(this,
                 R.array.state_array, android.R.layout.simple_spinner_item);
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner2.setAdapter(adapter2);
+        stateSpinner.setAdapter(adapter2);
 
-        Spinner spinner3 = (Spinner) findViewById(R.id.country_spinner);
+        countrySpinner = (Spinner) findViewById(R.id.country_spinner);
         ArrayAdapter<CharSequence> adapter3 = ArrayAdapter.createFromResource(this,
                 R.array.country_array, android.R.layout.simple_spinner_item);
         adapter3.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner3.setAdapter(adapter3);
+        countrySpinner.setAdapter(adapter3);
 
     }
 
@@ -138,10 +163,30 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
+    public void updateAddress(Address address){
+        String url = "http://ec2-35- 154-15- 217.ap-south-1.compute.amazonaws.com:8080/campushaatTestAPI/webapi/users/createAddress";
+
+        JSONObject json = address.toJSON();
+        Toast.makeText(this, json.toString(), Toast.LENGTH_SHORT).show();
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, json, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.v("aa gaya", response.toString());
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+
+        queue.add(request);
+    }
+
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
-
 }
