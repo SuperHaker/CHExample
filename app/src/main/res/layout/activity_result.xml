@@ -1,49 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:orientation="vertical"
-    android:layout_height="match_parent"
-    tools:context="com.example.android.chexample.ResultActivity">
+    android:layout_height="wrap_content">
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <LinearLayout xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="250dp" />
-
-    <TextView
-        android:id="@+id/gps_on"
-        android:layout_marginTop="8dp"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Turn GPS on for correct coordinates"
-        android:textSize="18sp"
-        android:textColor="@android:color/black"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        />
+        android:orientation="vertical"
+        tools:context="com.example.android.chexample.ResultActivity">
 
-    <TextView
-        android:layout_marginTop="8dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Your Address is"
-        android:fontFamily="sans-serif-condensed"
-        android:textSize="28sp"
-        android:textColor="@android:color/black"
-        android:layout_gravity="center"
-        />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textSize="28sp"
-        android:textColor="@android:color/black"
-        android:text="Address"
-        android:fontFamily="sans-serif-condensed"
-        android:gravity="center"
-        android:id="@+id/address_view"/>
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="250dp" />
 
 
-</LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="Your Address is"
+            android:textColor="@android:color/black"
+            android:textSize="28sp" />
+
+        <TextView
+            android:id="@+id/address_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif-condensed"
+            android:gravity="center"
+            android:text="Address"
+            android:textColor="@android:color/black"
+            android:textSize="28sp" />
+
+
+    </LinearLayout>
+
+</ScrollView>

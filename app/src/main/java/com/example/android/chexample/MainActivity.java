@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private GoogleApiClient mGoogleApiClient;
     public static final String TAG = "Volley";
-    LatLng point = new LatLng(0,0);
+    LatLng point = new LatLng(0.0,0.0);
     RequestQueue queue;
     int cityOption = 0, stateOption = 0, countryOption = 0;
     Button submit;
@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        coordinates = (TextView) findViewById(R.id.coordinates);
 
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
             coordinates.setText("Turn GPS on to get location coordinates");
@@ -63,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         roomNo = (TextInputEditText) findViewById(R.id.room_no);
         locality = (TextInputEditText) findViewById(R.id.locality);
         zipCode = (TextInputEditText) findViewById(R.id.zip_code);
-        coordinates = (TextView) findViewById(R.id.coordinates);
 
         i2 = getIntent();
             Address a = i2.getParcelableExtra("fieldValues");
