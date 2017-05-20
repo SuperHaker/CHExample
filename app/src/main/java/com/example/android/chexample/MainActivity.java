@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,10 +37,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
+    public static final String TAG = "Volley";
     LatLng point;
     RequestQueue queue;
-
+    int cityOption = 0, stateOption = 0, countryOption = 0;
     Button submit;
     Intent i;
     EditText roomNo, locality, zipCode;
@@ -61,8 +62,27 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                if (roomNo.getText().toString().isEmpty()){
+                    roomNo.setError("Enter room no.");
+                    return;
+                }
+
+                if (locality.getText().toString().isEmpty()){
+                    locality.setError("Enter Locality");
+                    return;
+                }
+
+                if (zipCode.getText().toString().isEmpty()){
+                    zipCode.setError("Enter zipCode");
+                    return;
+                }
+
+
                 Address address = new Address(roomNo.getText().toString(), locality.getText().toString(), zipCode.getText().toString(),
-                        "1","1","1",Double.toString(point.longitude), Double.toString(point.latitude));
+                        Integer.toString(cityOption), Integer.toString(stateOption),Integer.toString(countryOption),
+                        Double.toString(point.longitude), Double.toString(point.latitude));
+
                 updateAddress(address);
                 i.putExtra("coordis", point);
                 startActivity(i);
@@ -82,18 +102,51 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 R.array.city_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         citySpinner.setAdapter(adapter);
+        citySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                cityOption = i + 1;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                cityOption = 1;
+            }
+        });
 
         stateSpinner = (Spinner) findViewById(R.id.state_spinner);
         ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(this,
                 R.array.state_array, android.R.layout.simple_spinner_item);
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         stateSpinner.setAdapter(adapter2);
+        stateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                stateOption = i + 1;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                stateOption = 1;
+            }
+        });
 
         countrySpinner = (Spinner) findViewById(R.id.country_spinner);
         ArrayAdapter<CharSequence> adapter3 = ArrayAdapter.createFromResource(this,
                 R.array.country_array, android.R.layout.simple_spinner_item);
         adapter3.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         countrySpinner.setAdapter(adapter3);
+        countrySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                countryOption = i + 1;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                countryOption = 1;
+            }
+        });
 
     }
 
@@ -107,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onStop() {
         mGoogleApiClient.disconnect();
+        queue.cancelAll(TAG);
         super.onStop();
     }
 
@@ -139,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     getDigits();
 
                 } else {
-
+                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
@@ -148,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     public void getDigits(){
+        Location mLastLocation;
         try {
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
@@ -164,11 +219,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     public void updateAddress(Address address){
-        String url = "http://ec2-35- 154-15- 217.ap-south-1.compute.amazonaws.com:8080/campushaatTestAPI/webapi/users/createAddress";
+        String url = "http://ec2-35-154-15-217.ap-south-1.compute.amazonaws.com:8080" +
+                "/campushaatTestAPI/webapi/users/createAddress";
 
         JSONObject json = address.toJSON();
-        Toast.makeText(this, json.toString(), Toast.LENGTH_SHORT).show();
-
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, json, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -182,6 +236,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         });
 
         queue.add(request);
+        request.setTag(TAG);
     }
 
 
